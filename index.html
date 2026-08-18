@@ -1,0 +1,489 @@
+html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI游戏实验室 · 深色简约</title>
+
+    <!-- ========== Tailwind CSS CDN (官方) ========== -->
+    <!-- 使用 CDN 引入样式，保证上传 GitHub Pages 后样式不会错乱 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ========== 自定义补充样式（仅用于增强动效与平滑滚动） ========== -->
+    <style>
+        /* 全局平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 深色背景基础 */
+        body {
+            background-color: #0a0f1e;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        /* 游戏卡片 hover 动画：上浮 + 阴影增强 + 边框高亮 */
+        .game-card {
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        box-shadow 0.3s ease, 
+                        border-color 0.3s ease;
+            will-change: transform;
+        }
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 100, 255, 0.25);
+            border-color: rgba(99, 102, 241, 0.6);
+        }
+
+        /* 导航链接悬停下划线动画 */
+        .nav-link {
+            position: relative;
+            transition: color 0.2s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .nav-link:hover {
+            color: #e0e7ff;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* 按钮 hover 缩放 */
+        .btn-hover {
+            transition: transform 0.2s ease, background-color 0.2s, box-shadow 0.2s;
+        }
+        .btn-hover:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        /* 排行榜行 hover 效果 */
+        .rank-row {
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .rank-row:hover {
+            background-color: rgba(30, 41, 59, 0.8);
+            transform: translateX(5px);
+        }
+
+        /* 游戏截图占位 hover 缩放 */
+        .screenshot-placeholder {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .screenshot-placeholder:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 antialiased selection:bg-indigo-500/40 selection:text-white">
+
+    <!-- ========== 页面主容器：深色渐变背景 ========== -->
+    <div class="min-h-screen flex flex-col bg-gradient-to-b from-[#0a0f1e] via-[#0d1528] to-[#0a0f1e]">
+
+        <!-- ==================== 导航栏 ==================== -->
+        <!-- 使用 sticky 固定在顶部，毛玻璃背景 -->
+        <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20">
+            <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+
+                <!-- Logo 区域（占位，可替换） -->
+                <a href="#home" class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent tracking-tight hover:opacity-80 transition-opacity">
+                    🎮 AI游戏实验室
+                </a>
+
+                <!-- 桌面端导航链接（隐藏于手机） -->
+                <div class="hidden md:flex items-center space-x-10 text-sm font-medium">
+                    <a href="#home" class="nav-link text-slate-300">首页</a>
+                    <a href="#games" class="nav-link text-slate-300">游戏列表</a>
+                    <a href="#leaderboard" class="nav-link text-slate-300">排行榜</a>
+                    <a href="#about" class="nav-link text-slate-300">关于</a>
+                    <a href="#contact" class="nav-link text-slate-300">联系</a>
+                </div>
+
+                <!-- 移动端简化导航（使用图标文字，点击跳转） -->
+                <div class="md:hidden flex items-center gap-5 text-lg text-slate-300">
+                    <a href="#home" class="hover:text-white transition">⌂</a>
+                    <a href="#games" class="hover:text-white transition">🎮</a>
+                    <a href="#leaderboard" class="hover:text-white transition">🏆</a>
+                    <a href="#about" class="hover:text-white transition">👤</a>
+                    <a href="#contact" class="hover:text-white transition">✉️</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ==================== 主内容区 ==================== -->
+        <main class="flex-grow w-full">
+
+            <!-- ===== 首页介绍 (Hero) ===== -->
+            <section id="home" class="max-w-6xl mx-auto px-5 sm:px-8 pt-20 pb-24 md:pt-28 md:pb-32 flex flex-col items-center text-center">
+                
+                <!-- 游戏图标占位 -->
+                <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-blue-500 p-1.5 mb-8 shadow-2xl shadow-indigo-900/50 hover:shadow-indigo-500/50 transition-shadow duration-500">
+                    <div class="w-full h-full rounded-2xl bg-slate-900 flex items-center justify-center text-6xl sm:text-7xl">
+                        🕹️
+                    </div>
+                </div>
+
+                <!-- 主标题 -->
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                    探索<span class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">AI游戏</span>的无限可能
+                </h1>
+
+                <!-- 副标题描述 -->
+                <p class="mt-6 max-w-2xl text-lg sm:text-xl text-slate-400 leading-relaxed">
+                    欢迎来到我的AI游戏实验室！这里展示我使用机器学习和深度学习技术开发的游戏项目、演示和实验。
+                </p>
+
+                <!-- 行动按钮（占位链接，后续自行替换） -->
+                <div class="mt-10 flex flex-wrap gap-5 justify-center">
+                    <a href="#games" class="btn-hover px-8 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-900/40">
+                        浏览游戏
+                    </a>
+                    <a href="#leaderboard" class="btn-hover px-8 py-3.5 rounded-full border border-slate-600 hover:border-indigo-400 text-slate-200 hover:text-white hover:bg-slate-800/60">
+                        查看排行榜
+                    </a>
+                </div>
+
+                <!-- 装饰线 -->
+                <div class="mt-16 w-full max-w-xs h-px bg-gradient-to-r from-transparent via-indigo-400/50 to-transparent"></div>
+            </section>
+
+            <!-- ===== 游戏列表板块 ===== -->
+            <section id="games" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+                
+                <!-- 板块标题 -->
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">游戏项目</h2>
+                    <p class="text-slate-400 mt-3">AI驱动的游戏实验与互动演示</p>
+                    <div class="mx-auto mt-6 w-16 h-1 bg-indigo-500/70 rounded-full"></div>
+                </div>
+
+                <!-- 游戏网格：手机1列，平板2列，桌面3列 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- 游戏卡片 1 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <!-- 游戏截图占位 -->
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            🧠
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI迷宫求解器</h3>
+                        <p class="text-slate-400 text-sm flex-grow">使用强化学习算法训练智能体在随机生成的迷宫中寻找最优路径，支持实时可视化。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">Python</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-purple-200">PyGame</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-blue-200">Q-Learning</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+
+                    <!-- 游戏卡片 2 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            👾
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI贪吃蛇</h3>
+                        <p class="text-slate-400 text-sm flex-grow">使用深度Q网络训练贪吃蛇自主觅食，展示神经网络的决策过程与训练曲线。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">PyTorch</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-emerald-200">DQN</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-yellow-200">Pygame</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+
+                    <!-- 游戏卡片 3 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            🎯
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI射击瞄准</h3>
+                        <p class="text-slate-400 text-sm flex-grow">基于计算机视觉的手势识别射击游戏，使用摄像头追踪手部动作进行瞄准和射击。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">OpenCV</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-pink-200">MediaPipe</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-blue-200">Unity</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+
+                    <!-- 游戏卡片 4 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            🐦
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI Flappy Bird</h3>
+                        <p class="text-slate-400 text-sm flex-grow">使用神经进化算法训练小鸟自动通过管道障碍，展示多代进化的学习过程。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">NEAT</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-amber-200">Pygame</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-teal-200">遗传算法</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+
+                    <!-- 游戏卡片 5 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            ♟️
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI国际象棋</h3>
+                        <p class="text-slate-400 text-sm flex-grow">使用蒙特卡洛树搜索和深度学习评估函数，实现可对弈的智能象棋引擎。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">MCTS</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-cyan-200">TensorFlow</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-rose-200">Flask</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+
+                    <!-- 游戏卡片 6 -->
+                    <div class="game-card bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl p-6 flex flex-col">
+                        <div class="screenshot-placeholder bg-slate-800/80 rounded-xl h-48 mb-4 flex items-center justify-center text-6xl">
+                            🏎️
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI赛车</h3>
+                        <p class="text-slate-400 text-sm flex-grow">自动驾驶赛车模拟，使用卷积神经网络识别赛道并自动转向，支持多地图。</p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-indigo-200">CNN</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-orange-200">Unity ML-Agents</span>
+                            <span class="text-xs px-3 py-1 rounded-full bg-slate-800 text-lime-200">C#</span>
+                        </div>
+                        <a href="#" class="mt-5 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition text-sm font-medium">
+                            开始游戏 → <span class="sr-only">占位链接</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 更多游戏占位按钮 -->
+                <div class="text-center mt-14">
+                    <a href="#" class="inline-block text-indigo-400 hover:text-indigo-300 border border-indigo-500/40 rounded-full px-7 py-2.5 text-sm transition hover:bg-indigo-500/10">
+                        查看全部游戏 →
+                    </a>
+                </div>
+            </section>
+
+            <!-- ===== 排行榜板块 ===== -->
+            <section id="leaderboard" class="max-w-4xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+                
+                <div class="text-center mb-14">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">🏆 排行榜</h2>
+                    <p class="text-slate-400 mt-3">AI游戏最高分记录</p>
+                    <div class="mx-auto mt-6 w-16 h-1 bg-purple-500/70 rounded-full"></div>
+                </div>
+
+                <!-- 排行榜列表 -->
+                <div class="bg-slate-900/70 backdrop-blur-sm border border-slate-700/60 rounded-2xl overflow-hidden">
+                    
+                    <!-- 表头 -->
+                    <div class="grid grid-cols-3 gap-4 px-6 py-4 bg-slate-800/60 text-slate-400 text-sm font-medium">
+                        <span>排名</span>
+                        <span>游戏名称</span>
+                        <span class="text-right">最高分</span>
+                    </div>
+
+                    <!-- 排行榜行 1 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-yellow-400 font-bold">🥇 1</span>
+                        <span class="text-white font-medium">AI贪吃蛇</span>
+                        <span class="text-right text-indigo-300 font-semibold">2,847</span>
+                    </div>
+
+                    <!-- 排行榜行 2 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-slate-300 font-bold">🥈 2</span>
+                        <span class="text-white font-medium">AI Flappy Bird</span>
+                        <span class="text-right text-indigo-300 font-semibold">1,932</span>
+                    </div>
+
+                    <!-- 排行榜行 3 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-orange-400 font-bold">🥉 3</span>
+                        <span class="text-white font-medium">AI迷宫求解器</span>
+                        <span class="text-right text-indigo-300 font-semibold">1,456</span>
+                    </div>
+
+                    <!-- 排行榜行 4 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-slate-400 font-bold">4</span>
+                        <span class="text-white font-medium">AI赛车</span>
+                        <span class="text-right text-indigo-300 font-semibold">1,203</span>
+                    </div>
+
+                    <!-- 排行榜行 5 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-slate-400 font-bold">5</span>
+                        <span class="text-white font-medium">AI射击瞄准</span>
+                        <span class="text-right text-indigo-300 font-semibold">987</span>
+                    </div>
+
+                    <!-- 排行榜行 6 -->
+                    <div class="rank-row grid grid-cols-3 gap-4 px-6 py-4 border-t border-slate-700/40 items-center">
+                        <span class="text-slate-400 font-bold">6</span>
+                        <span class="text-white font-medium">AI国际象棋</span>
+                        <span class="text-right text-indigo-300 font-semibold">850</span>
+                    </div>
+                </div>
+
+                <!-- 排行榜说明占位 -->
+                <div class="text-center mt-6">
+                    <a href="#" class="text-sm text-slate-500 hover:text-indigo-400 transition">查看完整排行榜 →</a>
+                </div>
+            </section>
+
+            <!-- ===== 关于板块 ===== -->
+            <section id="about" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+                
+                <div class="text-center mb-14">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">关于实验室</h2>
+                    <div class="mx-auto mt-6 w-16 h-1 bg-blue-500/70 rounded-full"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <!-- 左侧介绍文本 -->
+                    <div class="text-slate-300 space-y-5 text-base sm:text-lg leading-relaxed">
+                        <p>
+                            🎮 欢迎来到 <span class="text-white font-semibold">AI游戏实验室</span>！这里是我个人探索人工智能与游戏结合的实验空间。
+                        </p>
+                        <p>
+                            🤖 我专注于使用 <span class="text-indigo-300">强化学习、深度学习、计算机视觉</span> 等技术开发有趣的游戏AI，
+                            让算法在虚拟世界中学习和进化。
+                        </p>
+                        <p>
+                            🛠️ 所有项目均为开源，欢迎交流合作。你可以运行、修改并学习这些AI游戏的实现。
+                        </p>
+                        <!-- 技术标签 -->
+                        <div class="flex flex-wrap gap-2 pt-4">
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-blue-200">Python</span>
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-indigo-200">PyTorch</span>
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-purple-200">TensorFlow</span>
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-cyan-200">OpenCV</span>
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-emerald-200">Unity</span>
+                            <span class="px-3 py-1 bg-slate-800/80 rounded-full text-sm text-amber-200">Pygame</span>
+                        </div>
+                    </div>
+
+                    <!-- 右侧代码风格装饰卡片（模拟游戏开发日志） -->
+                    <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-6 shadow-xl shadow-black/20">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="w-3 h-3 bg-red-400 rounded-full"></span>
+                            <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                            <span class="w-3 h-3 bg-green-400 rounded-full"></span>
+                            <span class="text-slate-500 text-xs ml-2">game_dev_log.py</span>
+                        </div>
+                        <pre class="text-sm text-indigo-300/90 overflow-x-auto"><code># AI游戏开发日志
+games_developed = ['迷宫求解器', '贪吃蛇', '射击瞄准',
+                   'Flappy Bird', '国际象棋', '赛车']
+
+learning_methods = ['强化学习', '深度学习', '进化算法']
+
+for game in games_developed:
+    print(f"✅ {game} - AI已训练完成")
+
+print(f"使用的技术: {', '.join(learning_methods)}")
+# 持续迭代，让AI更智能！</code></pre>
+                        <div class="mt-4 text-xs text-slate-500 flex justify-between">
+                            <span># 游戏AI研究</span>
+                            <span>🎮 持续更新中</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 联系板块 ===== -->
+            <section id="contact" class="max-w-6xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+                
+                <div class="text-center mb-14">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">联系我</h2>
+                    <div class="mx-auto mt-6 w-16 h-1 bg-indigo-500/70 rounded-full"></div>
+                    <p class="text-slate-400 mt-4">对游戏AI感兴趣？欢迎交流合作</p>
+                </div>
+
+                <!-- 联系方式卡片网格（全部为占位链接） -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                    
+                    <!-- Email 卡片 -->
+                    <a href="#" class="game-card bg-slate-900/70 border border-slate-700/70 rounded-xl p-6 flex flex-col items-center text-center">
+                        <span class="text-3xl mb-3">📧</span>
+                        <span class="text-white font-medium">电子邮箱</span>
+                        <span class="text-slate-500 text-sm mt-1">your.email@example.com</span>
+                    </a>
+
+                    <!-- GitHub 卡片 -->
+                    <a href="#" class="game-card bg-slate-900/70 border border-slate-700/70 rounded-xl p-6 flex flex-col items-center text-center">
+                        <span class="text-3xl mb-3">🐙</span>
+                        <span class="text-white font-medium">GitHub</span>
+                        <span class="text-slate-500 text-sm mt-1">github.com/yourname</span>
+                    </a>
+
+                    <!-- 技术博客卡片 -->
+                    <a href="#" class="game-card bg-slate-900/70 border border-slate-700/70 rounded-xl p-6 flex flex-col items-center text-center">
+                        <span class="text-3xl mb-3">📝</span>
+                        <span class="text-white font-medium">技术博客</span>
+                        <span class="text-slate-500 text-sm mt-1">blog.example.com</span>
+                    </a>
+
+                    <!-- 社交媒体卡片 -->
+                    <a href="#" class="game-card bg-slate-900/70 border border-slate-700/70 rounded-xl p-6 flex flex-col items-center text-center">
+                        <span class="text-3xl mb-3">💬</span>
+                        <span class="text-white font-medium">社交媒体</span>
+                        <span class="text-slate-500 text-sm mt-1">@your_handle</span>
+                    </a>
+                </div>
+
+                <!-- 联系表单占位（方便替换为真实表单） -->
+                <div class="mt-16 max-w-xl mx-auto bg-slate-900/60 border border-slate-700/50 rounded-2xl p-8">
+                    <form action="#" method="post" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm text-slate-400 mb-2">姓名</label>
+                            <input type="text" id="name" placeholder="你的名字" class="w-full bg-slate-800/80 border border-slate-600/60 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm text-slate-400 mb-2">邮箱</label>
+                            <input type="email" id="email" placeholder="you@example.com" class="w-full bg-slate-800/80 border border-slate-600/60 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm text-slate-400 mb-2">消息</label>
+                            <textarea id="message" rows="4" placeholder="说点什么..." class="w-full bg-slate-800/80 border border-slate-600/60 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"></textarea>
+                        </div>
+                        <button type="submit" class="btn-hover w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3.5 rounded-lg transition shadow-lg shadow-indigo-900/40">
+                            发送消息（占位）
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==================== 页脚 ==================== -->
+        <footer class="border-t border-white/10 py-8 text-center text-slate-500 text-sm">
+            <p>© 2025 AI游戏实验室 · 使用 Tailwind CSS 构建 · 深色简约风</p>
+            <p class="mt-1 text-xs text-slate-600">所有链接均为占位，请替换为你自己的内容</p>
+        </footer>
+    </div>
+
+    <!-- 平滑滚动已经由 CSS scroll-behavior 实现，无需额外 JS -->
+    <!-- 所有链接均为占位（href="#"），后续可自行替换为真实链接 -->
+</body>
+</html>
